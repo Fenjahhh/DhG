@@ -1,0 +1,74 @@
+export function createDefaultState() {
+  const today = new Date().toISOString().slice(0, 10);
+
+  return {
+    player: {
+      level: 1,
+      xp: 40,
+      totalXpEarned: 40,
+      stepsToday: 0,
+      activeBiome: 'city',
+      lastKnownLocation: { lat: 48.137154, lng: 11.576124 },
+      lastHealthSyncDate: null
+    },
+    collection: [],
+    encounters: {
+      active: null,
+      history: []
+    },
+    habits: [
+      {
+        id: crypto.randomUUID(),
+        name: '10 Minuten rausgehen',
+        type: 'positive',
+        streak: 0,
+        completedDate: null,
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: crypto.randomUUID(),
+        name: 'Doomscrolling unterbrechen',
+        type: 'negative',
+        streak: 0,
+        completedDate: null,
+        createdAt: new Date().toISOString()
+      }
+    ],
+    todos: [
+      {
+        id: crypto.randomUUID(),
+        text: 'Eine winzige Aufgabe erledigen',
+        done: false,
+        createdAt: new Date().toISOString(),
+        completedAt: null
+      }
+    ],
+    dailyTodos: [
+      {
+        id: crypto.randomUUID(),
+        text: 'Wasser trinken',
+        completedDate: null,
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: crypto.randomUUID(),
+        text: 'Einmal bewusst atmen',
+        completedDate: today,
+        createdAt: new Date().toISOString()
+      }
+    ],
+    gratitudeNotes: [
+      {
+        id: crypto.randomUUID(),
+        text: 'Heute zählt auch ein kleiner Anfang.',
+        createdAt: new Date().toISOString()
+      }
+    ],
+    settings: {
+      healthProvider: 'mock',
+      fitbitClientId: '',
+      fitbitToken: '',
+      reducedMotion: false
+    }
+  };
+}
