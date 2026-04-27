@@ -1,6 +1,20 @@
 import { BIOMES } from '../data/biomes.js';
 import { detectBiome } from '../services/biomeService.js';
 
+const PLAYER_MARKER_SVG = `
+<svg class="pixel-mage" viewBox="0 0 36 44" role="img" aria-label="Dein Standort">
+  <rect x="14" y="2" width="8" height="4" fill="#d8a7ff"/>
+  <rect x="10" y="6" width="20" height="6" fill="#6d28d9"/>
+  <rect x="14" y="12" width="12" height="8" fill="#f0c6a8"/>
+  <rect x="18" y="16" width="4" height="4" fill="#2b1438"/>
+  <rect x="10" y="20" width="20" height="12" fill="#3b1b52"/>
+  <rect x="6" y="24" width="6" height="6" fill="#98f1d8"/>
+  <rect x="24" y="24" width="6" height="6" fill="#98f1d8"/>
+  <rect x="10" y="32" width="8" height="6" fill="#211126"/>
+  <rect x="22" y="32" width="8" height="6" fill="#211126"/>
+  <rect x="4" y="40" width="28" height="4" rx="2" fill="rgba(152,241,216,0.65)"/>
+</svg>`;
+
 export function createMapView(store, { onBiomeChanged } = {}) {
   const initial = store.getState().player.lastKnownLocation;
   const map = L.map('map', {
@@ -31,7 +45,7 @@ export function createMapView(store, { onBiomeChanged } = {}) {
 
   const playerIcon = L.divIcon({
     className: 'player-marker',
-    html: '<span class="pixel-mage" aria-hidden="true"><span class="pixel-mage-hat"></span><span class="pixel-mage-face"></span><span class="pixel-mage-body"></span><span class="pixel-mage-staff"></span></span>',
+    html: PLAYER_MARKER_SVG,
     iconAnchor: [18, 38],
     iconSize: [36, 42],
     popupAnchor: [0, -38]
