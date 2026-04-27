@@ -159,7 +159,7 @@ input:focus, textarea:focus, select:focus { border-color: rgba(216,167,255,0.7);
 
 .map-stage { position: relative; min-width: 0; }
 #map { position: absolute; inset: 0; background: #101015; }
-.leaflet-container { background: #111; filter: saturate(0.58) brightness(0.72) contrast(1.18); }
+.leaflet-container { background: #111; }
 .leaflet-popup-content-wrapper, .leaflet-popup-tip { background: #191120; color: var(--ink); }
 
 .map-overlay {
