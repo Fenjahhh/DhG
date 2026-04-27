@@ -18,6 +18,12 @@ export function createMapView(store, { onBiomeChanged } = {}) {
   const encounterLayer = L.layerGroup().addTo(map);
   let lastBiomeId = store.getState().player.activeBiome;
 
+  requestAnimationFrame(() => map.invalidateSize());
+
+  const mapElement = document.querySelector('#map');
+  const resizeObserver = new ResizeObserver(() => map.invalidateSize());
+  resizeObserver.observe(mapElement);
+
   function renderLocation(location) {
     playerMarker.setLatLng([location.lat, location.lng]);
     map.panTo([location.lat, location.lng], { animate: true, duration: 0.7 });
