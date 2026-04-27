@@ -1,10 +1,10 @@
 import { distanceMeters } from './geoMath.js';
 
-const MUNICH_CENTER = { lat: 48.137154, lng: 11.576124 };
+export const ROSA_LUXEMBURG_PLATZ = { lat: 48.16199, lng: 11.5479 };
 
 export function createLocationService(store, { onLocation, onError } = {}) {
   let watchId = null;
-  let simulatedLocation = store.getState().player.lastKnownLocation ?? MUNICH_CENTER;
+  let simulatedLocation = store.getState().player.lastKnownLocation ?? ROSA_LUXEMBURG_PLATZ;
 
   function setLocation(location, source = 'manual') {
     const previous = store.getState().player.lastKnownLocation;

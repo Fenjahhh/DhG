@@ -211,48 +211,10 @@ input:focus, textarea:focus, select:focus { border-color: rgba(216,167,255,0.7);
   background: transparent;
   border: 0;
 }
-.pixel-mage {
-  position: relative;
-  width: 34px;
-  height: 42px;
+.player-marker svg {
+  display: block;
+  filter: drop-shadow(0 8px 8px rgba(0,0,0,0.48));
   image-rendering: pixelated;
-  filter: drop-shadow(0 8px 8px rgba(0,0,0,0.45));
-}
-.pixel-mage::before {
-  content: "";
-  position: absolute;
-  left: 9px;
-  top: 0;
-  width: 16px;
-  height: 10px;
-  background: #7c3aed;
-  box-shadow:
-    4px -4px 0 #d8a7ff,
-    8px 0 0 #7c3aed,
-    0 10px 0 #f0c6a8,
-    8px 10px 0 #f0c6a8,
-    4px 14px 0 #2b1438,
-    0 18px 0 #3b1b52,
-    8px 18px 0 #3b1b52,
-    16px 18px 0 #3b1b52,
-    -4px 22px 0 #98f1d8,
-    4px 22px 0 #7c3aed,
-    12px 22px 0 #7c3aed,
-    20px 22px 0 #98f1d8,
-    0 30px 0 #211126,
-    8px 30px 0 #211126,
-    16px 30px 0 #211126;
-}
-.pixel-mage::after {
-  content: "";
-  position: absolute;
-  left: 7px;
-  bottom: -3px;
-  width: 20px;
-  height: 6px;
-  border-radius: 999px;
-  background: rgba(152, 241, 216, 0.55);
-  box-shadow: 0 0 16px rgba(152, 241, 216, 0.9);
 }
 
 .map-overlay {

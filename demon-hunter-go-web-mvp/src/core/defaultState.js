@@ -1,3 +1,6 @@
+export const DEFAULT_LOCATION = { lat: 48.16199, lng: 11.5479 };
+export const LEGACY_DEFAULT_LOCATION = { lat: 48.137154, lng: 11.576124 };
+
 export function createDefaultState() {
   const today = new Date().toISOString().slice(0, 10);
 
@@ -8,7 +11,7 @@ export function createDefaultState() {
       totalXpEarned: 40,
       stepsToday: 0,
       activeBiome: 'city',
-      lastKnownLocation: { lat: 48.137154, lng: 11.576124 },
+      lastKnownLocation: DEFAULT_LOCATION,
       lastHealthSyncDate: null
     },
     collection: [],
