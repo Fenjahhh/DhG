@@ -86,7 +86,7 @@ export function bindHabitsPanel(store, root, toast) {
     });
   }
 
-  store.subscribe(render);
+  subscribePanel(store, render, ['habit:']);
 }
 
 export function bindTodosPanel(store, root, toast) {
@@ -146,7 +146,7 @@ export function bindTodosPanel(store, root, toast) {
     });
   }
 
-  store.subscribe(render);
+  subscribePanel(store, render, ['todo:']);
 }
 
 export function bindDailyPanel(store, root, toast) {
@@ -205,7 +205,7 @@ export function bindDailyPanel(store, root, toast) {
     });
   }
 
-  store.subscribe(render);
+  subscribePanel(store, render, ['daily:']);
 }
 
 export function bindGratitudePanel(store, root, toast) {
@@ -250,7 +250,7 @@ export function bindGratitudePanel(store, root, toast) {
     });
   }
 
-  store.subscribe(render);
+  subscribePanel(store, render, ['gratitude:']);
 }
 
 export function bindCollectionPanel(store, root) {
@@ -270,7 +270,7 @@ export function bindCollectionPanel(store, root) {
     `;
   }
 
-  store.subscribe(render);
+  subscribePanel(store, render, ['encounter:bind']);
 }
 
 export function bindHealthPanel(store, root, healthService, toast) {
@@ -352,7 +352,7 @@ export function bindHealthPanel(store, root, healthService, toast) {
     });
   }
 
-  store.subscribe(render);
+  subscribePanel(store, render, ['health:']);
 }
 
 function habitTemplate(habit) {
@@ -427,6 +427,14 @@ function collectionCardTemplate(demon) {
 
 function emptyTemplate(message) {
   return `<div class="empty-card"><p>${escapeHtml(message)}</p></div>`;
+}
+
+function subscribePanel(store, render, actionPrefixes) {
+  store.subscribe((state, action) => {
+    if (!action || action === 'state:reset' || actionPrefixes.some((prefix) => action.startsWith(prefix))) {
+      render(state, action);
+    }
+  });
 }
 
 function escapeHtml(value) {

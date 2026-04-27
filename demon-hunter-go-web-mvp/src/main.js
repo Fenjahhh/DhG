@@ -56,9 +56,23 @@ bindGratitudePanel(store, document.querySelector('#tab-gratitude'), toast);
 bindCollectionPanel(store, document.querySelector('#tab-collection'));
 bindHealthPanel(store, document.querySelector('#tab-health'), healthService, toast);
 
-document.querySelector('#locate-me-button').addEventListener('click', () => {
+const locateButton = document.querySelector('#locate-me-button');
+locateButton.addEventListener('click', () => {
+  if (locationService.isWatching()) {
+    locationService.stopWatch();
+    locateButton.textContent = 'Standort nutzen';
+    locateButton.classList.remove('is-active');
+    locateButton.setAttribute('aria-pressed', 'false');
+    toast('Standort-Updates pausiert.');
+    return;
+  }
+
   locationService.locateOnce();
-  locationService.startWatch();
+  if (locationService.startWatch()) {
+    locateButton.textContent = 'Standort stoppen';
+    locateButton.classList.add('is-active');
+    locateButton.setAttribute('aria-pressed', 'true');
+  }
 });
 
 document.querySelector('#simulate-step-button').addEventListener('click', () => {
