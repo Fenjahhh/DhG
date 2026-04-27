@@ -3,13 +3,26 @@ import { detectBiome } from '../services/biomeService.js';
 
 export function createMapView(store, { onBiomeChanged } = {}) {
   const initial = store.getState().player.lastKnownLocation;
-  const map = L.map('map', { zoomControl: false }).setView([initial.lat, initial.lng], 14);
+  const map = L.map('map', {
+    zoomControl: false,
+    preferCanvas: true
+  }).setView([initial.lat, initial.lng], 14);
   L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '&copy; OpenStreetMap contributors'
+  const tileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+    crossOrigin: true,
+    errorTileUrl:
+      'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==',
+    maxZoom: 20,
+    subdomains: 'abcd',
+    updateWhenIdle: true,
+    keepBuffer: 4
   }).addTo(map);
+
+  tileLayer.on('tileerror', () => {
+    map.getContainer().classList.add('map-has-tile-errors');
+  });
 
   const playerMarker = L.marker([initial.lat, initial.lng], {
     title: 'Du bist hier'

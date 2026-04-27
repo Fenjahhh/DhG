@@ -38,15 +38,15 @@ http://localhost:5173
 
 ## GitHub Pages Deployment
 
-Dieses Repo enthält einen GitHub-Actions-Workflow für GitHub Pages. Nach dem Push auf `main` baut GitHub automatisch die Vite-App aus `demon-hunter-go-web-mvp/` und veröffentlicht den Inhalt aus `dist/`.
+Dieses Repo ist für GitHub Pages über **Deploy from branch** vorbereitet.
 
 Falls Pages im Repository noch nicht aktiviert ist:
 
 1. In GitHub zu **Settings → Pages** gehen.
-2. Unter **Build and deployment** als Source **GitHub Actions** auswählen.
-3. Danach erneut auf `main` pushen oder den Workflow manuell starten.
+2. Unter **Build and deployment** als Source **Deploy from a branch** auswählen.
+3. Branch **main** und Ordner **/** auswählen.
 
-Falls Pages noch auf **Deploy from branch** mit `main` und `/` steht, leitet die Root-`index.html` als Fallback in den App-Ordner weiter.
+Die Root-`index.html` leitet dann automatisch in den App-Ordner weiter.
 
 Die spätere URL hat ungefähr dieses Format:
 
