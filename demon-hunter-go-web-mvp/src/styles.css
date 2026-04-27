@@ -160,6 +160,47 @@ input:focus, textarea:focus, select:focus { border-color: rgba(216,167,255,0.7);
 .map-stage { position: relative; min-width: 0; background: #1f2937; }
 #map { position: absolute; inset: 0; background: #1f2937; }
 .leaflet-container { background: #1f2937; }
+/* Critical Leaflet layout fallback in case the CDN stylesheet is slow or blocked. */
+.leaflet-container {
+  overflow: hidden;
+  touch-action: none;
+}
+.leaflet-pane,
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-tile-container,
+.leaflet-pane > svg,
+.leaflet-pane > canvas,
+.leaflet-zoom-box,
+.leaflet-image-layer,
+.leaflet-layer {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.leaflet-container img.leaflet-tile {
+  border: 0;
+  display: block;
+  height: 256px;
+  margin: 0;
+  max-height: none !important;
+  max-width: none !important;
+  padding: 0;
+  width: 256px;
+}
+.leaflet-tile-pane { z-index: 200; }
+.leaflet-overlay-pane { z-index: 400; }
+.leaflet-shadow-pane { z-index: 500; }
+.leaflet-marker-pane { z-index: 600; }
+.leaflet-tooltip-pane { z-index: 650; }
+.leaflet-popup-pane { z-index: 700; }
 .leaflet-tile {
   background-color: #dde6ef;
   image-rendering: auto;
