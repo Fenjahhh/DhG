@@ -4,27 +4,41 @@ import { detectBiome } from '../services/biomeService.js';
 export function createMapView(store, { onBiomeChanged } = {}) {
   const initial = store.getState().player.lastKnownLocation;
   const map = L.map('map', {
+    fadeAnimation: false,
+    markerZoomAnimation: false,
     zoomControl: false,
-    preferCanvas: true
+    preferCanvas: true,
+    zoomAnimation: false
   }).setView([initial.lat, initial.lng], 14);
   L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-  const tileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
-    crossOrigin: true,
+  const tileLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors',
+    detectRetina: false,
     errorTileUrl:
       'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==',
-    maxZoom: 20,
-    subdomains: 'abcd',
-    updateWhenIdle: true,
-    keepBuffer: 4
+    keepBuffer: 4,
+    maxNativeZoom: 19,
+    maxZoom: 19,
+    noWrap: true,
+    tileSize: 256,
+    updateWhenIdle: true
   }).addTo(map);
 
   tileLayer.on('tileerror', () => {
     map.getContainer().classList.add('map-has-tile-errors');
   });
 
+  const playerIcon = L.divIcon({
+    className: 'player-marker',
+    html: '<span class="pixel-mage" aria-hidden="true"><span class="pixel-mage-hat"></span><span class="pixel-mage-face"></span><span class="pixel-mage-body"></span><span class="pixel-mage-staff"></span></span>',
+    iconAnchor: [18, 38],
+    iconSize: [36, 42],
+    popupAnchor: [0, -38]
+  });
+
   const playerMarker = L.marker([initial.lat, initial.lng], {
+    icon: playerIcon,
     title: 'Du bist hier'
   }).addTo(map);
 
