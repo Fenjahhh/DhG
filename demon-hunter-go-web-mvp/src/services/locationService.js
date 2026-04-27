@@ -48,7 +48,7 @@ export function createLocationService(store, { onLocation, onError } = {}) {
   }
 
   function startWatch() {
-    if (!navigator.geolocation || watchId !== null) return;
+    if (!navigator.geolocation || watchId !== null) return false;
     watchId = navigator.geolocation.watchPosition(
       (position) => {
         setLocation(
@@ -62,13 +62,20 @@ export function createLocationService(store, { onLocation, onError } = {}) {
       (error) => onError?.(`GPS-Watch fehlgeschlagen: ${error.message}`),
       { enableHighAccuracy: true, timeout: 12000, maximumAge: 8000 }
     );
+    return true;
   }
 
   function stopWatch() {
     if (watchId !== null) {
       navigator.geolocation.clearWatch(watchId);
       watchId = null;
+      return true;
     }
+    return false;
+  }
+
+  function isWatching() {
+    return watchId !== null;
   }
 
   function simulateStep() {
@@ -81,5 +88,5 @@ export function createLocationService(store, { onLocation, onError } = {}) {
     setLocation(simulatedLocation, 'simulated');
   }
 
-  return { locateOnce, startWatch, stopWatch, simulateStep, setLocation };
+  return { locateOnce, startWatch, stopWatch, isWatching, simulateStep, setLocation };
 }
