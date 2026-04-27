@@ -46,6 +46,8 @@ Falls Pages im Repository noch nicht aktiviert ist:
 2. Unter **Build and deployment** als Source **GitHub Actions** auswählen.
 3. Danach erneut auf `main` pushen oder den Workflow manuell starten.
 
+Falls Pages noch auf **Deploy from branch** mit `main` und `/` steht, leitet die Root-`index.html` als Fallback in den App-Ordner weiter.
+
 Die spätere URL hat ungefähr dieses Format:
 
 ```text
