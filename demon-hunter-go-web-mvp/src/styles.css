@@ -157,9 +157,13 @@ input:focus, textarea:focus, select:focus { border-color: rgba(216,167,255,0.7);
 .list-item.done { opacity: 0.56; text-decoration: line-through; }
 .meta { display: block; color: var(--muted); font-size: 0.8rem; margin-top: 4px; }
 
-.map-stage { position: relative; min-width: 0; }
-#map { position: absolute; inset: 0; background: #101015; }
-.leaflet-container { background: #111; }
+.map-stage { position: relative; min-width: 0; background: #1f2937; }
+#map { position: absolute; inset: 0; background: #1f2937; }
+.leaflet-container { background: #1f2937; }
+.leaflet-tile {
+  background-color: #dde6ef;
+  image-rendering: auto;
+}
 .leaflet-popup-content-wrapper, .leaflet-popup-tip { background: #191120; color: var(--ink); }
 
 .map-overlay {
