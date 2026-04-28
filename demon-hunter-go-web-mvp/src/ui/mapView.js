@@ -1,5 +1,6 @@
 import { BIOMES } from '../data/biomes.js';
 import { detectBiome } from '../services/biomeService.js';
+import { EXPLORATION_RINGS } from '../services/explorationService.js';
 
 const PLAYER_MARKER_SVG = `
 <svg class="pixel-mage" viewBox="0 0 36 44" role="img" aria-label="Dein Standort">
@@ -13,6 +14,13 @@ const PLAYER_MARKER_SVG = `
   <rect x="10" y="32" width="8" height="6" fill="#211126"/>
   <rect x="22" y="32" width="8" height="6" fill="#211126"/>
   <rect x="4" y="40" width="28" height="4" rx="2" fill="rgba(152,241,216,0.65)"/>
+</svg>`;
+
+const HOME_MARKER_SVG = `
+<svg class="home-sigil" viewBox="0 0 36 36" role="img" aria-label="Home">
+  <circle cx="18" cy="18" r="15" fill="#160d20" stroke="#98f1d8" stroke-width="3"/>
+  <path d="M10 19 L18 10 L26 19 V28 H21 V22 H15 V28 H10 Z" fill="#d8a7ff"/>
+  <circle cx="18" cy="18" r="3" fill="#98f1d8"/>
 </svg>`;
 
 export function createMapView(store, { onBiomeChanged } = {}) {
@@ -57,6 +65,12 @@ export function createMapView(store, { onBiomeChanged } = {}) {
   }).addTo(map);
 
   const encounterLayer = L.layerGroup().addTo(map);
+  const homeLayer = L.layerGroup().addTo(map);
+  const routeLayer = L.polyline([], {
+    color: '#98f1d8',
+    opacity: 0.82,
+    weight: 4
+  }).addTo(map);
   let lastBiomeId = store.getState().player.activeBiome;
 
   requestAnimationFrame(() => map.invalidateSize());
@@ -80,6 +94,33 @@ export function createMapView(store, { onBiomeChanged } = {}) {
     }
   }
 
+  function renderExploration(exploration) {
+    homeLayer.clearLayers();
+    if (!exploration?.homeLocation) return;
+
+    const home = exploration.homeLocation;
+    const homeLatLng = [home.lat, home.lng];
+    const homeIcon = L.divIcon({
+      className: 'home-marker',
+      html: HOME_MARKER_SVG,
+      iconAnchor: [18, 18],
+      iconSize: [36, 36]
+    });
+
+    L.marker(homeLatLng, { icon: homeIcon, title: 'Home-Siegel' }).addTo(homeLayer);
+    EXPLORATION_RINGS.filter((ring) => Number.isFinite(ring.maxMeters)).forEach((ring) => {
+      L.circle(homeLatLng, {
+        radius: ring.maxMeters,
+        color: ring.color,
+        fill: false,
+        opacity: 0.42,
+        weight: 1.5
+      }).addTo(homeLayer);
+    });
+
+    routeLayer.setLatLngs((exploration.routePoints ?? exploration.route ?? []).map((point) => [point.lat, point.lng]));
+  }
+
   function renderEncounter(encounter, demon) {
     encounterLayer.clearLayers();
     if (!encounter || !demon) return;
@@ -100,5 +141,5 @@ export function createMapView(store, { onBiomeChanged } = {}) {
     encounterLayer.clearLayers();
   }
 
-  return { map, renderLocation, renderEncounter, clearEncounter };
+  return { map, renderLocation, renderExploration, renderEncounter, clearEncounter };
 }

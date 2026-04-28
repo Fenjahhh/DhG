@@ -19,6 +19,15 @@ export function createDefaultState() {
       active: null,
       history: []
     },
+    exploration: {
+      homeLocation: DEFAULT_LOCATION,
+      totalDistanceMeters: 0,
+      dailyDistanceMeters: 0,
+      dailyDistanceDate: today,
+      visitedCells: [],
+      routePoints: [{ ...DEFAULT_LOCATION, recordedAt: new Date().toISOString() }],
+      currentRingId: 'hearth'
+    },
     habits: [
       {
         id: crypto.randomUUID(),

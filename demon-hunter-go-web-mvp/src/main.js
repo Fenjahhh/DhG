@@ -17,6 +17,7 @@ import { createLocationService } from './services/locationService.js';
 import { createEncounter, getActiveEncounterDetails } from './services/demonService.js';
 import { createHealthService } from './services/health/healthService.js';
 import { detectBiome } from './services/biomeService.js';
+import { setHomeLocation, updateExplorationOnLocation } from './services/explorationService.js';
 
 const store = createStore();
 const toast = createToast();
@@ -37,9 +38,11 @@ const encounterView = createEncounterView(store, {
 const locationService = createLocationService(store, {
   onLocation(location) {
     mapView.renderLocation(location);
-    const biome = detectBiome(location);
     store.setState((state) => {
+      const previousLocation = state.player.lastKnownLocation;
+      const biome = detectBiome(location);
       state.player.activeBiome = biome.id;
+      updateExplorationOnLocation(state, previousLocation, location);
       return state;
     }, 'biome:location');
   },
@@ -79,6 +82,15 @@ document.querySelector('#simulate-step-button').addEventListener('click', () => 
   locationService.simulateStep();
 });
 
+document.querySelector('#set-home-button').addEventListener('click', () => {
+  const location = store.getState().player.lastKnownLocation;
+  store.setState((state) => {
+    setHomeLocation(state, location);
+    return state;
+  }, 'exploration:home:set');
+  toast('Home-Sigil gesetzt. Die Ringe richten sich neu aus.');
+});
+
 document.querySelector('#scan-button').addEventListener('click', () => {
   const state = store.getState();
   if (state.encounters.active) {
@@ -95,6 +107,10 @@ store.subscribe((state, action) => {
   const details = getActiveEncounterDetails(state);
   if (details) mapView.renderEncounter(details.encounter, details.demon);
 
+  if (!action || action.startsWith('exploration:') || action?.startsWith('biome:location')) {
+    mapView.renderExploration(state.exploration);
+  }
+
   if (action?.startsWith('location:')) {
     const steps = state.player.stepsToday;
     if (steps > 0 && steps % 750 < 25 && !state.encounters.active) {
@@ -108,4 +124,5 @@ store.subscribe((state, action) => {
 // Initial map sync.
 const initialLocation = store.getState().player.lastKnownLocation;
 mapView.renderLocation(initialLocation);
+mapView.renderExploration(store.getState().exploration);
 toast('Der Ritual-Prototyp ist erwacht.');

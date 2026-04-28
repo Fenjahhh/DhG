@@ -80,6 +80,7 @@ p { color: var(--muted); }
 
 .stat-card span { display: block; font-size: 0.72rem; color: var(--muted); }
 .stat-card strong { display: block; margin-top: 6px; font-size: 1.05rem; }
+.stat-card.wide { grid-column: span 2; }
 
 .tabs {
   display: flex;
@@ -215,6 +216,19 @@ input:focus, textarea:focus, select:focus { border-color: rgba(216,167,255,0.7);
   display: block;
   filter: drop-shadow(0 8px 8px rgba(0,0,0,0.48));
   image-rendering: pixelated;
+}
+
+.home-marker {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 2px solid rgba(216, 167, 255, 0.92);
+  border-radius: 12px;
+  color: #15091f;
+  background: linear-gradient(135deg, rgba(216, 167, 255, 0.96), rgba(152, 241, 216, 0.9));
+  box-shadow: 0 0 0 4px rgba(216, 167, 255, 0.18), 0 12px 24px rgba(0,0,0,0.45);
+  font-size: 18px;
 }
 
 .map-overlay {
