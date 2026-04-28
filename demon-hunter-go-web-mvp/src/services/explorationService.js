@@ -6,35 +6,35 @@ export const EXPLORATION_RINGS = [
     label: 'Heimkreis',
     maxMeters: 1000,
     color: '#98f1d8',
-    rarityWeights: { common: 82, uncommon: 16, rare: 2 }
+    rarityWeights: { common: 78, uncommon: 18, rare: 4, epic: 0, legendary: 0 }
   },
   {
     id: 'streets',
     label: 'Straßenring',
     maxMeters: 3000,
     color: '#d8a7ff',
-    rarityWeights: { common: 64, uncommon: 30, rare: 6 }
+    rarityWeights: { common: 58, uncommon: 32, rare: 9, epic: 1, legendary: 0 }
   },
   {
     id: 'outer-city',
     label: 'Außenkreis',
     maxMeters: 8000,
     color: '#9fd3ff',
-    rarityWeights: { common: 46, uncommon: 40, rare: 14 }
+    rarityWeights: { common: 42, uncommon: 38, rare: 17, epic: 3, legendary: 0 }
   },
   {
     id: 'journey',
     label: 'Fahrtenkreis',
     maxMeters: 20000,
     color: '#ffcf8f',
-    rarityWeights: { common: 30, uncommon: 46, rare: 24 }
+    rarityWeights: { common: 28, uncommon: 40, rare: 24, epic: 7, legendary: 1 }
   },
   {
     id: 'wilds',
     label: 'Fernkreis',
     maxMeters: Infinity,
     color: '#ff8fbe',
-    rarityWeights: { common: 18, uncommon: 42, rare: 40 }
+    rarityWeights: { common: 18, uncommon: 34, rare: 32, epic: 13, legendary: 3 }
   }
 ];
 

@@ -23,12 +23,14 @@ export function createEncounterView(store, { toast, onClose } = {}) {
 
     dialog.innerHTML = `
       <article class="encounter-card">
-        <div class="demon-art">${demon.art}</div>
+        <div class="demon-art">${demonArtwork(demon)}</div>
         <h2>${demon.name}</h2>
         <p>${demon.title}</p>
         <div class="badges">
           <span class="badge">${RARITY_LABELS[demon.rarity]}</span>
           <span class="badge">Biom: ${demon.biome}</span>
+          ${encounter.ringId ? `<span class="badge">Ring: ${encounter.ringId}</span>` : ''}
+          ${encounter.specialPlace?.typeLabel ? `<span class="badge">${encounter.specialPlace.typeLabel}</span>` : ''}
           <span class="badge">Chance: ${Math.min(96, chance)}%</span>
         </div>
         <p>${demon.flavor}</p>
@@ -82,4 +84,20 @@ export function createEncounterView(store, { toast, onClose } = {}) {
   }
 
   return { open, close };
+}
+
+function demonArtwork(demon) {
+  if (demon.artworkUrl) {
+    return `<img src="${escapeHtml(demon.artworkUrl)}" alt="${escapeHtml(demon.name)}" loading="lazy" />`;
+  }
+  return demon.art;
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
 }
