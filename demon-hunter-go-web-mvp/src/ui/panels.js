@@ -423,7 +423,7 @@ function gratitudeTemplate(note) {
 function collectionCardTemplate(demon) {
   return `
     <article class="collection-card">
-      <div class="demon-art">${demon.art}</div>
+      ${demonArtTemplate(demon)}
       <h3>${demon.name}</h3>
       <p>${demon.title}</p>
       <div class="badges">
@@ -433,6 +433,13 @@ function collectionCardTemplate(demon) {
       <span class="meta">${demon.flavor}</span>
     </article>
   `;
+}
+
+function demonArtTemplate(demon) {
+  if (demon.artworkUrl) {
+    return `<div class="demon-art"><img src="${escapeHtml(demon.artworkUrl)}" alt="${escapeHtml(demon.name)}" loading="lazy" /></div>`;
+  }
+  return `<div class="demon-art">${demon.art}</div>`;
 }
 
 function emptyTemplate(message) {

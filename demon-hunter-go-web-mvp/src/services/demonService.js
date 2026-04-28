@@ -3,24 +3,39 @@ import { RITUALS } from '../data/rituals.js';
 import { randomNearbyPoint } from './geoMath.js';
 import { spendXp, addXp } from '../core/rewards.js';
 import { getExplorationSummary } from './explorationService.js';
+import { distanceMeters } from './geoMath.js';
 
 const RARITY_WEIGHT = {
   common: 60,
   uncommon: 28,
-  rare: 12
+  rare: 12,
+  epic: 4,
+  legendary: 1
 };
+
+const SPECIAL_PLACE_RADIUS_METERS = 220;
 
 export function createEncounter(store, biomeId) {
   const state = store.getState();
   const location = state.player.lastKnownLocation;
-  const candidates = DEMONS.filter((demon) => demon.biome === biomeId);
   const ring = getExplorationSummary(state).ring;
+  const nearbyPlace = getNearbySpecialPlace(state.specialPlaces?.items ?? [], location);
+  const candidates = getEncounterCandidates(biomeId, ring.id, nearbyPlace);
   const demon = weightedPick(candidates.length ? candidates : DEMONS, ring.rarityWeights);
   const encounter = {
     id: crypto.randomUUID(),
     demonId: demon.id,
     biome: biomeId,
     ringId: ring.id,
+    specialPlaceId: nearbyPlace?.id ?? null,
+    specialPlace: nearbyPlace
+      ? {
+          id: nearbyPlace.id,
+          type: nearbyPlace.type,
+          typeLabel: nearbyPlace.typeLabel,
+          name: nearbyPlace.name
+        }
+      : null,
     location: randomNearbyPoint(location),
     createdAt: new Date().toISOString(),
     ritualsUsed: [],
@@ -114,6 +129,8 @@ function weightedPick(candidates, rarityWeights = RARITY_WEIGHT) {
 }
 
 function rewardForRarity(rarity) {
+  if (rarity === 'legendary') return 120;
+  if (rarity === 'epic') return 65;
   if (rarity === 'rare') return 35;
   if (rarity === 'uncommon') return 22;
   return 12;
@@ -121,4 +138,32 @@ function rewardForRarity(rarity) {
 
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
+}
+
+function getEncounterCandidates(biomeId, ringId, nearbyPlace) {
+  const candidates = DEMONS.filter((demon) => {
+    const biomeMatches = !demon.biome || demon.biome === biomeId || demon.biome === 'any';
+    const ringMatches = !demon.rings || demon.rings.includes(ringId);
+    const placeMatches = !demon.specialPlaceTypes || (nearbyPlace && demon.specialPlaceTypes.includes(nearbyPlace.type));
+    return biomeMatches && ringMatches && placeMatches;
+  });
+
+  const biomeFallback = DEMONS.filter((demon) => {
+    const biomeMatches = demon.biome === biomeId || demon.biome === 'any';
+    const ringMatches = !demon.rings || demon.rings.includes(ringId);
+    return biomeMatches && ringMatches && !demon.specialPlaceTypes;
+  });
+
+  return candidates.length ? candidates : biomeFallback;
+}
+
+function getNearbySpecialPlace(places, location) {
+  return places
+    .filter((place) => place?.location)
+    .map((place) => ({
+      place,
+      distance: distanceMeters(location, place.location)
+    }))
+    .filter(({ distance }) => distance <= SPECIAL_PLACE_RADIUS_METERS)
+    .sort((a, b) => a.distance - b.distance)[0]?.place ?? null;
 }
