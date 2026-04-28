@@ -1,4 +1,4 @@
-import nebelzahnPng from './Nebelzahn.png';
+import nebelzahnPng from './Nebelzahn.PNG';
 export const DEMONS = [
   {
     id: 'nebelzahn',
