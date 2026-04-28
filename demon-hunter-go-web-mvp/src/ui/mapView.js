@@ -67,6 +67,7 @@ export function createMapView(store, { onBiomeChanged } = {}) {
   const encounterLayer = L.layerGroup().addTo(map);
   const homeLayer = L.layerGroup().addTo(map);
   const photoLayer = L.layerGroup().addTo(map);
+  const specialPlacesLayer = L.layerGroup().addTo(map);
   const routeLayer = L.polyline([], {
     color: '#98f1d8',
     opacity: 0.82,
@@ -141,6 +142,23 @@ export function createMapView(store, { onBiomeChanged } = {}) {
       });
   }
 
+  function renderSpecialPlaces(places, visible = true) {
+    specialPlacesLayer.clearLayers();
+    if (!visible) return;
+
+    places.forEach((place) => {
+      const icon = L.divIcon({
+        className: `special-place-marker special-place-${place.type}`,
+        html: place.icon,
+        iconAnchor: [15, 15],
+        iconSize: [30, 30]
+      });
+      L.marker([place.location.lat, place.location.lng], { icon, title: place.name })
+        .bindPopup(`<strong>${escapeHtml(place.name)}</strong><br>${escapeHtml(place.typeLabel)}<br><span>Spezialdämon-Ort</span>`)
+        .addTo(specialPlacesLayer);
+    });
+  }
+
   function renderEncounter(encounter, demon) {
     encounterLayer.clearLayers();
     if (!encounter || !demon) return;
@@ -161,7 +179,7 @@ export function createMapView(store, { onBiomeChanged } = {}) {
     encounterLayer.clearLayers();
   }
 
-  return { map, renderLocation, renderExploration, renderPhotoMarkers, renderEncounter, clearEncounter };
+  return { map, renderLocation, renderExploration, renderPhotoMarkers, renderSpecialPlaces, renderEncounter, clearEncounter };
 }
 
 function escapeHtml(value) {

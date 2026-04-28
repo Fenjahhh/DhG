@@ -46,11 +46,23 @@ function migrateState(state) {
   state.exploration.routePoints ??= state.exploration.route ?? [];
   state.exploration.visitedCells ??= [];
   state.exploration.currentRingId ??= 'hearth';
+  state.specialPlaces ??= {
+    items: [],
+    lastScanAt: null,
+    lastScanLocation: null,
+    status: 'idle'
+  };
+  state.specialPlaces.items ??= state.specialPlaces.places ?? [];
+  state.specialPlaces.lastScanAt ??= null;
+  state.specialPlaces.lastScanLocation ??= null;
+  state.specialPlaces.status ??= 'idle';
   state.settings ??= {};
   state.settings.showPhotoMarkers ??= true;
+  state.settings.showSpecialPlaces ??= true;
   delete state.exploration.todayDistanceMeters;
   delete state.exploration.lastRouteDate;
   delete state.exploration.route;
+  delete state.specialPlaces.places;
   return state;
 }
 
