@@ -264,6 +264,16 @@ input:focus, textarea:focus, select:focus { border-color: rgba(216,167,255,0.7);
   border-radius: 14px;
   margin-top: 10px;
 }
+.note-photo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+.note-photo-grid .note-photo {
+  aspect-ratio: 1;
+  margin-top: 0;
+}
 .note-photo-input {
   margin-top: 10px;
 }
@@ -339,6 +349,14 @@ input:focus, textarea:focus, select:focus { border-color: rgba(216,167,255,0.7);
 }
 .ritual-list { display: grid; gap: 8px; margin-top: 10px; }
 .ritual-option { text-align: left; border-radius: 18px; padding: 12px; }
+.ritual-option.is-used,
+.ritual-option:disabled {
+  border-color: rgba(152, 241, 216, 0.9);
+  background: rgba(152, 241, 216, 0.18);
+  box-shadow: 0 0 0 2px rgba(152, 241, 216, 0.28);
+  color: var(--ink);
+  opacity: 1;
+}
 
 .toast-root {
   position: fixed;

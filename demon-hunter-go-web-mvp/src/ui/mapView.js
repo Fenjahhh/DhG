@@ -127,19 +127,21 @@ export function createMapView(store, { onBiomeChanged } = {}) {
     photoLayer.clearLayers();
     if (!visible) return;
 
-    notes
-      .filter((note) => note.photoDataUrl && note.location)
-      .forEach((note) => {
+    notes.forEach((note) => {
+      const photos = getNotePhotos(note);
+      photos.forEach((photo) => {
+        if (!photo.dataUrl || !photo.location) return;
         const icon = L.divIcon({
           className: 'photo-marker',
-          html: `<img src="${note.photoDataUrl}" alt="" />`,
+          html: `<img src="${photo.dataUrl}" alt="" />`,
           iconAnchor: [18, 18],
           iconSize: [36, 36]
         });
-        L.marker([note.location.lat, note.location.lng], { icon, title: 'Foto-Fund' })
+        L.marker([photo.location.lat, photo.location.lng], { icon, title: 'Foto-Fund' })
           .bindPopup(`<strong>Foto-Fund</strong><br>${escapeHtml(note.text).slice(0, 120)}`)
           .addTo(photoLayer);
       });
+    });
   }
 
   function renderSpecialPlaces(places, visible = true) {
@@ -189,4 +191,18 @@ function escapeHtml(value) {
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;');
+}
+
+function getNotePhotos(note) {
+  if (Array.isArray(note.photos)) return note.photos;
+  if (note.photoDataUrl) {
+    return [
+      {
+        dataUrl: note.photoDataUrl,
+        location: note.location,
+        createdAt: note.createdAt
+      }
+    ];
+  }
+  return [];
 }

@@ -111,6 +111,13 @@ export function attemptBind(store) {
   return { ok: true, success, demon, chance, roll };
 }
 
+export function dismissEncounter(store) {
+  store.setState((draft) => {
+    draft.encounters.active = null;
+    return draft;
+  }, 'encounter:dismiss');
+}
+
 export function getActiveEncounterDetails(state) {
   const active = state.encounters.active;
   if (!active) return null;
@@ -119,13 +126,17 @@ export function getActiveEncounterDetails(state) {
 }
 
 function weightedPick(candidates, rarityWeights = RARITY_WEIGHT) {
-  const total = candidates.reduce((sum, demon) => sum + (rarityWeights[demon.rarity] ?? RARITY_WEIGHT[demon.rarity]), 0);
+  const total = candidates.reduce((sum, demon) => sum + demonWeight(demon, rarityWeights), 0);
   let threshold = Math.random() * total;
   for (const demon of candidates) {
-    threshold -= rarityWeights[demon.rarity] ?? RARITY_WEIGHT[demon.rarity];
+    threshold -= demonWeight(demon, rarityWeights);
     if (threshold <= 0) return demon;
   }
   return candidates[0];
+}
+
+function demonWeight(demon, rarityWeights) {
+  return Math.max(1, rarityWeights[demon.rarity] ?? RARITY_WEIGHT[demon.rarity] ?? 1);
 }
 
 function rewardForRarity(rarity) {

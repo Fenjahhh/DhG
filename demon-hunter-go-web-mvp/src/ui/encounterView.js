@@ -1,6 +1,6 @@
 import { RITUALS } from '../data/rituals.js';
 import { RARITY_LABELS } from '../data/demons.js';
-import { getActiveEncounterDetails, useRitual, attemptBind } from '../services/demonService.js';
+import { dismissEncounter, getActiveEncounterDetails, useRitual, attemptBind } from '../services/demonService.js';
 
 export function createEncounterView(store, { toast, onClose } = {}) {
   const dialog = document.querySelector('#encounter-dialog');
@@ -76,7 +76,10 @@ export function createEncounterView(store, { toast, onClose } = {}) {
       close();
     });
 
-    dialog.querySelector('#close-encounter-button')?.addEventListener('click', close);
+    dialog.querySelector('#close-encounter-button')?.addEventListener('click', () => {
+      dismissEncounter(store);
+      close();
+    });
   }
 
   function ritualName(id) {
