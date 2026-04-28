@@ -19,6 +19,7 @@ export function createEncounterView(store, { toast, onClose } = {}) {
 
   function render({ encounter, demon }) {
     const used = new Set(encounter.ritualsUsed.map((ritual) => ritual.ritualId));
+    const latestRitualId = encounter.ritualsUsed.at(-1)?.ritualId;
     const chance = Math.round((demon.baseBindChance + encounter.bonusChance + (used.has(demon.preferredRitual) ? 0.12 : 0)) * 100);
 
     dialog.innerHTML = `
@@ -38,7 +39,7 @@ export function createEncounterView(store, { toast, onClose } = {}) {
 
         <div class="ritual-list">
           ${RITUALS.map((ritual) => `
-            <button class="ritual-option ghost-button" data-use-ritual="${ritual.id}" ${used.has(ritual.id) ? 'disabled' : ''}>
+            <button class="ritual-option ghost-button ${used.has(ritual.id) ? 'is-used' : ''} ${latestRitualId === ritual.id ? 'is-latest' : ''}" data-use-ritual="${ritual.id}" ${used.has(ritual.id) ? 'disabled' : ''}>
               <strong>${ritual.name}</strong><br />
               <span>${ritual.description}</span><br />
               <span class="meta">+${Math.round(ritual.chanceBonus * 100)}% Bindung ${ritual.xpCost ? `· ${ritual.xpCost} EXP` : ''}</span>
