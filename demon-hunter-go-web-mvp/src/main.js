@@ -78,6 +78,14 @@ locateButton.addEventListener('click', () => {
   }
 });
 
+const photoMarkersButton = document.querySelector('#toggle-photo-markers-button');
+photoMarkersButton.addEventListener('click', () => {
+  store.setState((state) => {
+    state.settings.showPhotoMarkers = !state.settings.showPhotoMarkers;
+    return state;
+  }, 'settings:photo-markers');
+});
+
 document.querySelector('#simulate-step-button').addEventListener('click', () => {
   locationService.simulateStep();
 });
@@ -111,6 +119,13 @@ store.subscribe((state, action) => {
     mapView.renderExploration(state.exploration);
   }
 
+  if (!action || action.startsWith('gratitude:') || action === 'settings:photo-markers') {
+    mapView.renderPhotoMarkers(state.gratitudeNotes, state.settings.showPhotoMarkers);
+    photoMarkersButton.textContent = state.settings.showPhotoMarkers ? 'Fotos ausblenden' : 'Fotos zeigen';
+    photoMarkersButton.classList.toggle('is-active', state.settings.showPhotoMarkers);
+    photoMarkersButton.setAttribute('aria-pressed', String(state.settings.showPhotoMarkers));
+  }
+
   if (action?.startsWith('location:')) {
     const steps = state.player.stepsToday;
     if (steps > 0 && steps % 750 < 25 && !state.encounters.active) {
@@ -125,4 +140,5 @@ store.subscribe((state, action) => {
 const initialLocation = store.getState().player.lastKnownLocation;
 mapView.renderLocation(initialLocation);
 mapView.renderExploration(store.getState().exploration);
+mapView.renderPhotoMarkers(store.getState().gratitudeNotes, store.getState().settings.showPhotoMarkers);
 toast('Der Ritual-Prototyp ist erwacht.');

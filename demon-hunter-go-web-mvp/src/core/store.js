@@ -46,6 +46,8 @@ function migrateState(state) {
   state.exploration.routePoints ??= state.exploration.route ?? [];
   state.exploration.visitedCells ??= [];
   state.exploration.currentRingId ??= 'hearth';
+  state.settings ??= {};
+  state.settings.showPhotoMarkers ??= true;
   delete state.exploration.todayDistanceMeters;
   delete state.exploration.lastRouteDate;
   delete state.exploration.route;
