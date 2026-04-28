@@ -2,6 +2,7 @@ import { DEMONS, RARITY_LABELS } from '../data/demons.js';
 import { RITUALS } from '../data/rituals.js';
 import { addXp } from '../core/rewards.js';
 import { createPhotoAttachment, normalizeNotePhotos } from '../services/photoService.js';
+import { runDefense, getDefenseSummary, getTowerStats } from '../services/towerDefenseService.js';
 
 export function renderRitualsPanel(root) {
   root.innerHTML = `
@@ -301,6 +302,77 @@ export function bindCollectionPanel(store, root) {
   subscribePanel(store, render, ['encounter:bind']);
 }
 
+export function bindDefensePanel(store, root, toast) {
+  function render(state) {
+    const summary = getDefenseSummary(state);
+    const boundDemons = state.collection
+      .map((id) => DEMONS.find((demon) => demon.id === id))
+      .filter(Boolean);
+    const towerOptions = [
+      {
+        id: 'home-sigil',
+        name: 'Home-Siegel',
+        title: 'Grundschutz des Kreises',
+        rarity: 'common',
+        biome: 'home',
+        art: '◆',
+        artworkUrl: '',
+        role: 'Kern',
+        power: 24
+      },
+      ...boundDemons
+    ];
+    const selected = new Set(state.defense?.selectedTowerIds ?? []);
+    const history = state.defense?.history ?? [];
+
+    root.innerHTML = `
+      <article class="form-card">
+        <h2>Home-Verteidigung</h2>
+        <p>Setze gebundene Dämonen als Türme ein und verteidige abends dein Home-Sigil gegen eine Welle.</p>
+        <div class="badges">
+          <span class="badge">Sigil: ${summary.sigilHealth}/100</span>
+          <span class="badge">Heute: ${summary.dailyRunDone ? 'abgeschlossen' : 'bereit'}</span>
+          <span class="badge">Siege: ${summary.wins}</span>
+        </div>
+        <div class="tower-grid">
+          ${towerOptions.map((demon) => towerCardTemplate(demon, selected.has(demon.id))).join('')}
+        </div>
+        <div class="form-row wrap">
+          <button id="run-defense-button" class="primary-button" ${summary.dailyRunDone ? 'disabled' : ''}>Tageswelle starten</button>
+        </div>
+      </article>
+      <article class="card">
+        <h2>Letzte Wellen</h2>
+        <div class="list">
+          ${history.slice(0, 5).map(defenseHistoryTemplate).join('') || emptyTemplate('Noch keine Verteidigung gespielt.')}
+        </div>
+      </article>
+    `;
+
+    root.querySelectorAll('[data-toggle-tower]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const id = button.dataset.toggleTower;
+        store.setState((draft) => {
+          draft.defense.selectedTowerIds ??= [];
+          if (draft.defense.selectedTowerIds.includes(id)) {
+            draft.defense.selectedTowerIds = draft.defense.selectedTowerIds.filter((item) => item !== id);
+          } else {
+            draft.defense.selectedTowerIds.push(id);
+          }
+          return draft;
+        }, 'defense:tower-toggle');
+      });
+    });
+
+    root.querySelector('#run-defense-button')?.addEventListener('click', () => {
+      const result = runDefense(store);
+      toast(result.message, result.ok ? (result.victory ? 'ok' : 'error') : 'error');
+    });
+  }
+
+  subscribePanel(store, render, ['defense:', 'encounter:bind']);
+}
+
 export function bindHealthPanel(store, root, healthService, toast) {
   async function render(state) {
     const status = await healthService.getStatus();
@@ -441,6 +513,30 @@ function gratitudeTemplate(note) {
         </label>
       </div>
       <button class="small-button danger-button" data-delete-note="${note.id}">×</button>
+    </div>
+  `;
+}
+
+function towerCardTemplate(demon, selected) {
+  const stats = getTowerStats(demon);
+  return `
+    <button class="tower-option ${selected ? 'is-selected' : ''}" data-toggle-tower="${demon.id}">
+      ${demonArtTemplate(demon)}
+      <strong>${escapeHtml(demon.name)}</strong>
+      <span class="meta">${stats.role} · Stärke ${stats.power}</span>
+      <span class="meta">${RARITY_LABELS[demon.rarity] ?? demon.rarity}</span>
+    </button>
+  `;
+}
+
+function defenseHistoryTemplate(entry) {
+  return `
+    <div class="list-item">
+      <div>
+        <strong>${entry.success ? 'Sieg' : 'Durchbruch'} · ${escapeHtml(entry.wave.name)}</strong>
+        <span class="meta">Turmstärke ${entry.defensePower} gegen Bedrohung ${entry.wave.threat} · +${entry.xpReward} EXP</span>
+      </div>
+      <span class="badge">${entry.success ? 'gehalten' : `${entry.damage} Schaden`}</span>
     </div>
   `;
 }

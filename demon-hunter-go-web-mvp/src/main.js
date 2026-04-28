@@ -7,6 +7,7 @@ import { createEncounterView } from './ui/encounterView.js';
 import {
   bindCollectionPanel,
   bindDailyPanel,
+  bindDefensePanel,
   bindGratitudePanel,
   bindHabitsPanel,
   bindHealthPanel,
@@ -58,6 +59,7 @@ bindTodosPanel(store, document.querySelector('#tab-todos'), toast);
 bindDailyPanel(store, document.querySelector('#tab-daily'), toast);
 bindGratitudePanel(store, document.querySelector('#tab-gratitude'), toast);
 bindCollectionPanel(store, document.querySelector('#tab-collection'));
+bindDefensePanel(store, document.querySelector('#tab-defense'), toast);
 bindHealthPanel(store, document.querySelector('#tab-health'), healthService, toast);
 
 const locateButton = document.querySelector('#locate-me-button');

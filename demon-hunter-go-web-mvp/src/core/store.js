@@ -56,6 +56,23 @@ function migrateState(state) {
   state.specialPlaces.lastScanAt ??= null;
   state.specialPlaces.lastScanLocation ??= null;
   state.specialPlaces.status ??= 'idle';
+  state.defense ??= {
+    selectedTowerIds: ['home-sigil'],
+    lastRunDate: null,
+    bestWave: 0,
+    wins: 0,
+    losses: 0,
+    history: []
+  };
+  state.defense.selectedTowerIds ??= ['home-sigil'];
+  state.defense.history ??= [];
+  state.defense.bestWave ??= 0;
+  state.defense.wins ??= state.defense.victories ?? 0;
+  state.defense.losses ??= 0;
+  state.defense.lastRunDate ??= state.defense.lastDefenseDate ?? state.defense.lastBattleDate ?? null;
+  delete state.defense.victories;
+  delete state.defense.lastDefenseDate;
+  delete state.defense.lastBattleDate;
   state.settings ??= {};
   state.settings.showPhotoMarkers ??= true;
   state.settings.showSpecialPlaces ??= true;
