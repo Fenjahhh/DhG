@@ -80,6 +80,7 @@ export function createDefaultState() {
       healthProvider: 'mock',
       fitbitClientId: '',
       fitbitToken: '',
+      showPhotoMarkers: true,
       reducedMotion: false
     }
   };

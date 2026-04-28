@@ -66,6 +66,7 @@ export function createMapView(store, { onBiomeChanged } = {}) {
 
   const encounterLayer = L.layerGroup().addTo(map);
   const homeLayer = L.layerGroup().addTo(map);
+  const photoLayer = L.layerGroup().addTo(map);
   const routeLayer = L.polyline([], {
     color: '#98f1d8',
     opacity: 0.82,
@@ -121,6 +122,25 @@ export function createMapView(store, { onBiomeChanged } = {}) {
     routeLayer.setLatLngs((exploration.routePoints ?? exploration.route ?? []).map((point) => [point.lat, point.lng]));
   }
 
+  function renderPhotoMarkers(notes, visible = true) {
+    photoLayer.clearLayers();
+    if (!visible) return;
+
+    notes
+      .filter((note) => note.photoDataUrl && note.location)
+      .forEach((note) => {
+        const icon = L.divIcon({
+          className: 'photo-marker',
+          html: `<img src="${note.photoDataUrl}" alt="" />`,
+          iconAnchor: [18, 18],
+          iconSize: [36, 36]
+        });
+        L.marker([note.location.lat, note.location.lng], { icon, title: 'Foto-Fund' })
+          .bindPopup(`<strong>Foto-Fund</strong><br>${escapeHtml(note.text).slice(0, 120)}`)
+          .addTo(photoLayer);
+      });
+  }
+
   function renderEncounter(encounter, demon) {
     encounterLayer.clearLayers();
     if (!encounter || !demon) return;
@@ -141,5 +161,14 @@ export function createMapView(store, { onBiomeChanged } = {}) {
     encounterLayer.clearLayers();
   }
 
-  return { map, renderLocation, renderExploration, renderEncounter, clearEncounter };
+  return { map, renderLocation, renderExploration, renderPhotoMarkers, renderEncounter, clearEncounter };
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
 }

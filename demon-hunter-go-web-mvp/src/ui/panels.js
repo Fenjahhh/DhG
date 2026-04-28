@@ -216,6 +216,9 @@ export function bindGratitudePanel(store, root, toast) {
         <p>Kein toxisches Positivdenken. Nur ein kleiner Fund im Nebel.</p>
         <form id="gratitude-form">
           <textarea name="text" placeholder="Heute war nicht alles gut, aber…" required></textarea>
+          <label class="meta" for="gratitude-photo">Optionales Standortfoto</label>
+          <input id="gratitude-photo" name="photo" type="file" accept="image/*" />
+          <span class="meta">Fotos werden lokal im Browser gespeichert und für die Karte verkleinert.</span>
           <div class="form-row"><button class="primary-button" type="submit">Notiz speichern</button></div>
         </form>
       </article>
@@ -224,13 +227,18 @@ export function bindGratitudePanel(store, root, toast) {
       </div>
     `;
 
-    root.querySelector('#gratitude-form')?.addEventListener('submit', (event) => {
+    root.querySelector('#gratitude-form')?.addEventListener('submit', async (event) => {
       event.preventDefault();
       const data = new FormData(event.currentTarget);
+      const photoFile = data.get('photo');
+      const photoDataUrl = photoFile instanceof File && photoFile.size > 0 ? await fileToDataUrl(photoFile) : '';
+      const location = store.getState().player.lastKnownLocation;
       store.setState((draft) => {
         draft.gratitudeNotes.unshift({
           id: crypto.randomUUID(),
           text: data.get('text').toString().trim(),
+          location,
+          photoDataUrl,
           createdAt: new Date().toISOString()
         });
         return draft;
@@ -404,6 +412,8 @@ function gratitudeTemplate(note) {
       <div>
         <strong>${new Date(note.createdAt).toLocaleDateString('de-DE')}</strong>
         <span class="meta">${escapeHtml(note.text)}</span>
+        ${note.location ? `<span class="meta">Ort: ${note.location.lat.toFixed(4)}, ${note.location.lng.toFixed(4)}</span>` : ''}
+        ${note.photoDataUrl ? `<img class="note-photo" src="${note.photoDataUrl}" alt="Standortfoto zur Notiz" loading="lazy" />` : ''}
       </div>
       <button class="small-button danger-button" data-delete-note="${note.id}">×</button>
     </div>
@@ -434,6 +444,32 @@ function subscribePanel(store, render, actionPrefixes) {
     if (!action || action === 'state:reset' || actionPrefixes.some((prefix) => action.startsWith(prefix))) {
       render(state, action);
     }
+  });
+}
+
+function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    const reader = new FileReader();
+
+    reader.addEventListener('error', () => reject(new Error('Foto konnte nicht gelesen werden.')));
+    reader.addEventListener('load', () => {
+      image.addEventListener('error', () => reject(new Error('Foto konnte nicht verarbeitet werden.')));
+      image.addEventListener('load', () => {
+        const maxSize = 720;
+        const scale = Math.min(1, maxSize / Math.max(image.width, image.height));
+        const width = Math.max(1, Math.round(image.width * scale));
+        const height = Math.max(1, Math.round(image.height * scale));
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext('2d').drawImage(image, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', 0.72));
+      });
+      image.src = reader.result;
+    });
+
+    reader.readAsDataURL(file);
   });
 }
 
