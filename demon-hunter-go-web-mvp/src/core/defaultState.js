@@ -19,6 +19,14 @@ export function createDefaultState() {
       active: null,
       history: []
     },
+    defense: {
+      selectedTowerIds: ['home-sigil'],
+      lastRunDate: null,
+      bestWave: 0,
+      wins: 0,
+      losses: 0,
+      history: []
+    },
     exploration: {
       homeLocation: DEFAULT_LOCATION,
       totalDistanceMeters: 0,
