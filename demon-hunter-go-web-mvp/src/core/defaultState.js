@@ -81,7 +81,14 @@ export function createDefaultState() {
       fitbitClientId: '',
       fitbitToken: '',
       showPhotoMarkers: true,
+      showSpecialPlaces: true,
       reducedMotion: false
+    },
+    specialPlaces: {
+      items: [],
+      lastScanLocation: null,
+      lastScanAt: null,
+      status: 'idle'
     }
   };
 }

@@ -18,6 +18,7 @@ import { createEncounter, getActiveEncounterDetails } from './services/demonServ
 import { createHealthService } from './services/health/healthService.js';
 import { detectBiome } from './services/biomeService.js';
 import { setHomeLocation, updateExplorationOnLocation } from './services/explorationService.js';
+import { scanSpecialPlaces, shouldUseSpecialPlacesCache } from './services/specialPlacesService.js';
 
 const store = createStore();
 const toast = createToast();
@@ -86,6 +87,52 @@ photoMarkersButton.addEventListener('click', () => {
   }, 'settings:photo-markers');
 });
 
+const specialPlacesButton = document.querySelector('#scan-special-places-button');
+specialPlacesButton.addEventListener('click', async () => {
+  specialPlacesButton.disabled = true;
+  specialPlacesButton.textContent = 'Orte scannen...';
+  try {
+    const location = store.getState().player.lastKnownLocation;
+    const cache = store.getState().specialPlaces;
+    if (shouldUseSpecialPlacesCache(cache, location)) {
+      store.setState((state) => {
+        state.settings.showSpecialPlaces = true;
+        return state;
+      }, 'settings:special-places');
+      toast(`${cache.items.length} besondere Orte aus dem lokalen Cache angezeigt.`, cache.items.length ? 'ok' : 'error');
+      return;
+    }
+
+    const places = await scanSpecialPlaces(location);
+    store.setState((state) => {
+      state.specialPlaces.items = places;
+      state.specialPlaces.lastScanLocation = location;
+      state.specialPlaces.lastScanAt = new Date().toISOString();
+      state.specialPlaces.status = 'ready';
+      state.settings.showSpecialPlaces = true;
+      return state;
+    }, 'special-places:scan');
+    toast(`${places.length} besondere Orte im Umkreis gefunden.`, places.length ? 'ok' : 'error');
+  } catch (error) {
+    store.setState((state) => {
+      state.specialPlaces.status = 'error';
+      return state;
+    }, 'special-places:error');
+    toast(error.message, 'error');
+  } finally {
+    specialPlacesButton.disabled = false;
+    specialPlacesButton.textContent = 'Orte scannen';
+  }
+});
+
+const specialPlacesToggle = document.querySelector('#toggle-special-places-button');
+specialPlacesToggle.addEventListener('click', () => {
+  store.setState((state) => {
+    state.settings.showSpecialPlaces = !state.settings.showSpecialPlaces;
+    return state;
+  }, 'settings:special-places');
+});
+
 document.querySelector('#simulate-step-button').addEventListener('click', () => {
   locationService.simulateStep();
 });
@@ -126,6 +173,13 @@ store.subscribe((state, action) => {
     photoMarkersButton.setAttribute('aria-pressed', String(state.settings.showPhotoMarkers));
   }
 
+  if (!action || action.startsWith('special-places:') || action === 'settings:special-places') {
+    mapView.renderSpecialPlaces(state.specialPlaces.items, state.settings.showSpecialPlaces);
+    specialPlacesToggle.textContent = state.settings.showSpecialPlaces ? 'Orte ausblenden' : 'Orte zeigen';
+    specialPlacesToggle.classList.toggle('is-active', state.settings.showSpecialPlaces);
+    specialPlacesToggle.setAttribute('aria-pressed', String(state.settings.showSpecialPlaces));
+  }
+
   if (action?.startsWith('location:')) {
     const steps = state.player.stepsToday;
     if (steps > 0 && steps % 750 < 25 && !state.encounters.active) {
@@ -141,4 +195,5 @@ const initialLocation = store.getState().player.lastKnownLocation;
 mapView.renderLocation(initialLocation);
 mapView.renderExploration(store.getState().exploration);
 mapView.renderPhotoMarkers(store.getState().gratitudeNotes, store.getState().settings.showPhotoMarkers);
+mapView.renderSpecialPlaces(store.getState().specialPlaces.items, store.getState().settings.showSpecialPlaces);
 toast('Der Ritual-Prototyp ist erwacht.');
