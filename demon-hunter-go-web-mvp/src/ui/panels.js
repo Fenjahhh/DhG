@@ -1,6 +1,7 @@
 import { DEMONS, RARITY_LABELS } from '../data/demons.js';
 import { RITUALS } from '../data/rituals.js';
 import { addXp } from '../core/rewards.js';
+import { createPhotoAttachment, normalizeNotePhotos } from '../services/photoService.js';
 
 export function renderRitualsPanel(root) {
   root.innerHTML = `
@@ -231,14 +232,15 @@ export function bindGratitudePanel(store, root, toast) {
       event.preventDefault();
       const data = new FormData(event.currentTarget);
       const photoFile = data.get('photo');
-      const photoDataUrl = photoFile instanceof File && photoFile.size > 0 ? await fileToDataUrl(photoFile) : '';
       const location = store.getState().player.lastKnownLocation;
+      const photos = photoFile instanceof File && photoFile.size > 0 ? [await createPhotoAttachment(photoFile, location)] : [];
       store.setState((draft) => {
         draft.gratitudeNotes.unshift({
           id: crypto.randomUUID(),
           text: data.get('text').toString().trim(),
           location,
-          photoDataUrl,
+          photos,
+          photoDataUrl: photos[0]?.dataUrl ?? '',
           createdAt: new Date().toISOString()
         });
         return draft;
@@ -254,6 +256,24 @@ export function bindGratitudePanel(store, root, toast) {
           draft.gratitudeNotes = draft.gratitudeNotes.filter((item) => item.id !== id);
           return draft;
         }, 'gratitude:delete');
+      });
+    });
+
+    root.querySelectorAll('[data-add-note-photo]').forEach((input) => {
+      input.addEventListener('change', async () => {
+        const file = input.files?.[0];
+        if (!file) return;
+        const location = store.getState().player.lastKnownLocation;
+        const photo = await createPhotoAttachment(file, location);
+        store.setState((draft) => {
+          const note = draft.gratitudeNotes.find((item) => item.id === input.dataset.addNotePhoto);
+          if (!note) return draft;
+          note.photos = normalizeNotePhotos(note);
+          note.photos.push(photo);
+          note.photoDataUrl = note.photos[0]?.dataUrl ?? '';
+          return draft;
+        }, 'gratitude:photo:add');
+        toast('Foto zur Notiz hinzugefügt.');
       });
     });
   }
@@ -407,13 +427,18 @@ function dailyTemplate(todo) {
 }
 
 function gratitudeTemplate(note) {
+  const photos = normalizeNotePhotos(note);
   return `
     <div class="list-item">
       <div>
         <strong>${new Date(note.createdAt).toLocaleDateString('de-DE')}</strong>
         <span class="meta">${escapeHtml(note.text)}</span>
         ${note.location ? `<span class="meta">Ort: ${note.location.lat.toFixed(4)}, ${note.location.lng.toFixed(4)}</span>` : ''}
-        ${note.photoDataUrl ? `<img class="note-photo" src="${note.photoDataUrl}" alt="Standortfoto zur Notiz" loading="lazy" />` : ''}
+        ${photos.length ? `<div class="note-photo-grid">${photos.map((photo) => `<img class="note-photo" src="${photo.dataUrl}" alt="Standortfoto zur Notiz" loading="lazy" />`).join('')}</div>` : ''}
+        <label class="small-button note-photo-input">
+          Foto hinzufügen
+          <input type="file" accept="image/*" data-add-note-photo="${note.id}" hidden />
+        </label>
       </div>
       <button class="small-button danger-button" data-delete-note="${note.id}">×</button>
     </div>
@@ -451,32 +476,6 @@ function subscribePanel(store, render, actionPrefixes) {
     if (!action || action === 'state:reset' || actionPrefixes.some((prefix) => action.startsWith(prefix))) {
       render(state, action);
     }
-  });
-}
-
-function fileToDataUrl(file) {
-  return new Promise((resolve, reject) => {
-    const image = new Image();
-    const reader = new FileReader();
-
-    reader.addEventListener('error', () => reject(new Error('Foto konnte nicht gelesen werden.')));
-    reader.addEventListener('load', () => {
-      image.addEventListener('error', () => reject(new Error('Foto konnte nicht verarbeitet werden.')));
-      image.addEventListener('load', () => {
-        const maxSize = 720;
-        const scale = Math.min(1, maxSize / Math.max(image.width, image.height));
-        const width = Math.max(1, Math.round(image.width * scale));
-        const height = Math.max(1, Math.round(image.height * scale));
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        canvas.getContext('2d').drawImage(image, 0, 0, width, height);
-        resolve(canvas.toDataURL('image/jpeg', 0.72));
-      });
-      image.src = reader.result;
-    });
-
-    reader.readAsDataURL(file);
   });
 }
 
