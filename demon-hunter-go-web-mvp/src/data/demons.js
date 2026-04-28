@@ -1,3 +1,4 @@
+import nebelzahnPng from './Nebelzahn.png';
 export const DEMONS = [
   {
     id: 'nebelzahn',
@@ -10,7 +11,7 @@ export const DEMONS = [
     resistance: 22,
     preferredRitual: 'breath',
     art: '🌫️',
-    artworkUrl: '',
+    artworkUrl: nebelzahnPng,
     flavor: 'Er kaut an Gedanken, bis sie wie Kiesel im Kopf klappern.',
     effect: '+5 EXP, wenn du ihn bindest.'
   },
