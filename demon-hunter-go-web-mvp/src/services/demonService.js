@@ -2,6 +2,7 @@ import { DEMONS } from '../data/demons.js';
 import { RITUALS } from '../data/rituals.js';
 import { randomNearbyPoint } from './geoMath.js';
 import { spendXp, addXp } from '../core/rewards.js';
+import { getExplorationSummary } from './explorationService.js';
 
 const RARITY_WEIGHT = {
   common: 60,
@@ -13,11 +14,13 @@ export function createEncounter(store, biomeId) {
   const state = store.getState();
   const location = state.player.lastKnownLocation;
   const candidates = DEMONS.filter((demon) => demon.biome === biomeId);
-  const demon = weightedPick(candidates.length ? candidates : DEMONS);
+  const ring = getExplorationSummary(state).ring;
+  const demon = weightedPick(candidates.length ? candidates : DEMONS, ring.rarityWeights);
   const encounter = {
     id: crypto.randomUUID(),
     demonId: demon.id,
     biome: biomeId,
+    ringId: ring.id,
     location: randomNearbyPoint(location),
     createdAt: new Date().toISOString(),
     ritualsUsed: [],
@@ -100,11 +103,11 @@ export function getActiveEncounterDetails(state) {
   return { encounter: active, demon };
 }
 
-function weightedPick(candidates) {
-  const total = candidates.reduce((sum, demon) => sum + RARITY_WEIGHT[demon.rarity], 0);
+function weightedPick(candidates, rarityWeights = RARITY_WEIGHT) {
+  const total = candidates.reduce((sum, demon) => sum + (rarityWeights[demon.rarity] ?? RARITY_WEIGHT[demon.rarity]), 0);
   let threshold = Math.random() * total;
   for (const demon of candidates) {
-    threshold -= RARITY_WEIGHT[demon.rarity];
+    threshold -= rarityWeights[demon.rarity] ?? RARITY_WEIGHT[demon.rarity];
     if (threshold <= 0) return demon;
   }
   return candidates[0];

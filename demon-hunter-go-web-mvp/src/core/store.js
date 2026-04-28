@@ -1,4 +1,5 @@
 import { createDefaultState, DEFAULT_LOCATION, LEGACY_DEFAULT_LOCATION } from './defaultState.js';
+import { createDefaultExploration } from '../services/explorationService.js';
 import { loadState, saveState } from '../services/storageService.js';
 
 export function createStore() {
@@ -37,6 +38,17 @@ function migrateState(state) {
   if (isSameLocation(location, LEGACY_DEFAULT_LOCATION)) {
     state.player.lastKnownLocation = DEFAULT_LOCATION;
   }
+  state.exploration ??= createDefaultExploration(state.player.lastKnownLocation ?? DEFAULT_LOCATION);
+  state.exploration.homeLocation ??= state.player.lastKnownLocation ?? DEFAULT_LOCATION;
+  state.exploration.totalDistanceMeters ??= 0;
+  state.exploration.dailyDistanceMeters ??= state.exploration.todayDistanceMeters ?? 0;
+  state.exploration.dailyDistanceDate ??= state.exploration.lastRouteDate ?? new Date().toISOString().slice(0, 10);
+  state.exploration.routePoints ??= state.exploration.route ?? [];
+  state.exploration.visitedCells ??= [];
+  state.exploration.currentRingId ??= 'hearth';
+  delete state.exploration.todayDistanceMeters;
+  delete state.exploration.lastRouteDate;
+  delete state.exploration.route;
   return state;
 }
 
